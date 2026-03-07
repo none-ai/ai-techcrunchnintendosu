@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ news.title }} - Nintendo 关税诉讼</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e60012 0%, #ff4d4d 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        .nav {
+            background: white;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #e60012;
+        }
+
+        .article-content {
+            background: white;
+            padding: 2.5rem;
+            margin: 2rem auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .article-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .article-source {
+            background: #e60012;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .article-date {
+            color: #888;
+        }
+
+        .article-reading-time {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .article-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #222;
+        }
+
+        .article-summary {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background: #f9f9f9;
+            border-left: 4px solid #e60012;
+            border-radius: 4px;
+            font-size: 1.05rem;
+            color: #555;
+        }
+
+        .article-body {
+            font-size: 1.1rem;
+            line-height: 1.9;
+        }
+
+        .article-body p {
+            margin-bottom: 1.5rem;
+        }
+
+        .article-source-link {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .article-source-link a {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .article-source-link a:hover {
+            background: #555;
+        }
+
+        .related-section {
+            background: white;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 900px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .related-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e60012;
+        }
+
+        .related-list {
+            list-style: none;
+        }
+
+        .related-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .related-list li:last-child {
+            border-bottom: none;
+        }
+
+        .related-list a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .related-list a:hover {
+            color: #e60012;
+        }
+
+        .footer {
+            background: #333;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .flash-messages {
+            max-width: 900px;
+            margin: 1rem auto;
+            padding: 0 20px;
+        }
+
+        .flash {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .flash.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .flash.warning {
+            background: #fff3e0;
+            color: #e65100;
+            border-left: 4px solid #e65100;
+        }
+
+        .flash.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="/" class="back-link">← 返回新闻列表</a>
+            <h1>Nintendo 起诉美国政府关税诉讼</h1>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <ul class="nav-links">
+                <li><a href="/">首页 / Home</a></li>
+                <li><a href="/?source=TechCrunch">TechCrunch</a></li>
+                <li><a href="/?source=Reuters">Reuters</a></li>
+                <li><a href="/?source=Bloomberg">Bloomberg</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 闪现消息 -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <article class="article-content">
+        <header class="article-header">
+            <div class="article-meta">
+                <span class="article-source">{{ news.source }}</span>
+                <span class="article-date">{{ news.date }}</span>
+                <span class="article-reading-time">阅读时间: {{ reading_time }} 分钟</span>
+            </div>
+            <h1 class="article-title">{{ news.title }}</h1>
+            {% if news.summary %}
+            <div class="article-summary">
+                {{ news.summary }}
+            </div>
+            {% endif %}
+        </header>
+
+        <div class="article-body">
+            {% if news.content %}
+                {% for paragraph in news.content.split('\n\n') %}
+                    {% if paragraph.strip() %}
+                    <p>{{ paragraph }}</p>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p>{{ news.summary }}</p>
+            {% endif %}
+        </div>
+
+        <div class="article-source-link">
+            <a href="{{ news.url }}" target="_blank" rel="noopener">阅读原文 →</a>
+        </div>
+    </article>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Nintendo 关税诉讼新闻聚合 / Nintendo Tariff Lawsuit News Aggregation</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.6;">
+                本网站仅作演示用途
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
