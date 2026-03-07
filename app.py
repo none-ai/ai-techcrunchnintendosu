@@ -142,6 +142,24 @@ def create_app(config_class=None):
             flash(f'筛选时出错: {format_error_message(e)}', 'error')
             return redirect(url_for('index'))
 
+    @app.route('/refresh')
+    def refresh():
+        """
+        手动刷新新闻
+        Manual news refresh
+        """
+        try:
+            result = scraper.refresh_news()
+            if result['success']:
+                flash(f"新闻刷新成功，共 {result['count']} 条", 'success')
+            else:
+                flash(f"刷新失败: {result['message']}", 'error')
+            return redirect(url_for('index'))
+        except Exception as e:
+            logger.error(f"刷新错误: {str(e)}")
+            flash(f'刷新时出错: {format_error_message(e)}', 'error')
+            return redirect(url_for('index'))
+
     @app.errorhandler(404)
     def not_found(error):
         """404错误处理"""

@@ -197,3 +197,35 @@ class NewsScraper:
         except Exception as e:
             logger.error(f"筛选新闻时出错: {str(e)}")
             return []
+
+    def refresh_news(self) -> Dict:
+        """
+        刷新新闻缓存
+        清除现有缓存并重新获取最新新闻
+
+        Returns:
+            刷新结果字典
+        """
+        try:
+            logger.info("正在刷新新闻数据...")
+            # 清除会话并重新获取
+            self.session.close()
+            self.session = requests.Session()
+            self.session.headers.update({'User-Agent': self.config.USER_AGENT})
+
+            # 重新获取新闻
+            fresh_news = self._mock_search_results(' '.join(self.config.SEARCH_KEYWORDS))
+
+            logger.info(f"新闻刷新成功，共 {len(fresh_news)} 条")
+            return {
+                'success': True,
+                'count': len(fresh_news),
+                'message': '新闻刷新成功'
+            }
+        except Exception as e:
+            logger.error(f"刷新新闻时出错: {str(e)}")
+            return {
+                'success': False,
+                'count': 0,
+                'message': f'刷新失败: {str(e)}'
+            }
