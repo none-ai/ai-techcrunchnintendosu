@@ -111,6 +111,50 @@ def get_sources():
         }), 500
 
 
+@api_bp.route('/categories')
+def get_categories():
+    """
+    获取所有新闻分类
+    """
+    try:
+        scraper = get_scraper()
+        categories = scraper.get_categories()
+
+        return jsonify({
+            'success': True,
+            'count': len(categories),
+            'data': categories
+        })
+    except Exception as e:
+        logger.error(f"API获取分类错误: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@api_bp.route('/news/category/<category>')
+def get_news_by_category(category):
+    """
+    按分类获取新闻
+    """
+    try:
+        scraper = get_scraper()
+        news_list = scraper.filter_by_category(category)
+
+        return jsonify({
+            'success': True,
+            'count': len(news_list),
+            'data': news_list
+        })
+    except Exception as e:
+        logger.error(f"API获取分类新闻错误: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @api_bp.route('/refresh', methods=['POST'])
 def refresh_news():
     """
