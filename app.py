@@ -6,11 +6,14 @@ Flask Web Application Main File
 News aggregation app about Nintendo suing US government for tariff refund
 """
 
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, Response
 from config import get_config
 from scraper import NewsScraper
 from utils import format_date, truncate_text, calculate_reading_time, format_error_message
+from api import api_bp
+from datetime import datetime
 import logging
+import xml.etree.ElementTree as ET
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +32,9 @@ def create_app(config_class=None):
         Flask应用实例
     """
     app = Flask(__name__)
+
+    # 注册 API Blueprint
+    app.register_blueprint(api_bp)
 
     # 加载配置
     if config_class is None:
@@ -142,6 +148,45 @@ def create_app(config_class=None):
             flash(f'筛选时出错: {format_error_message(e)}', 'error')
             return redirect(url_for('index'))
 
+    @app.route('/category/<category>')
+    def category_news(category):
+        """
+        按分类显示新闻
+        Show news by category
+        """
+        try:
+            news_list = scraper.filter_by_category(category)
+            categories = scraper.get_categories()
+            return render_template(
+                'index.html',
+                news_list=news_list,
+                current_category=category,
+                categories=categories
+            )
+        except Exception as e:
+            logger.error(f"分类筛选错误: {str(e)}")
+            flash(f'筛选时出错: {format_error_message(e)}', 'error')
+            return redirect(url_for('index'))
+
+    @app.route('/categories')
+    def categories():
+        """
+        显示所有分类
+        Show all categories
+        """
+        try:
+            categories = scraper.get_categories()
+            return render_template(
+                'index.html',
+                news_list=[],
+                categories=categories,
+                show_categories_only=True
+            )
+        except Exception as e:
+            logger.error(f"获取分类错误: {str(e)}")
+            flash(f'获取分类时出错: {format_error_message(e)}', 'error')
+            return redirect(url_for('index'))
+
     @app.route('/refresh')
     def refresh():
         """
@@ -159,6 +204,69 @@ def create_app(config_class=None):
             logger.error(f"刷新错误: {str(e)}")
             flash(f'刷新时出错: {format_error_message(e)}', 'error')
             return redirect(url_for('index'))
+
+    @app.route('/feed')
+    def rss_feed():
+        """
+        RSS 2.0 订阅源
+        RSS 2.0 Feed
+        """
+        try:
+            news_list = scraper.get_latest_news(limit=20)
+
+            # 构建 RSS XML
+            rss = ET.Element('rss', version='2.0')
+            channel = ET.SubElement(rss, 'channel')
+
+            # 频道信息
+            title = ET.SubElement(channel, 'title')
+            title.text = 'Nintendo 关税诉讼新闻'
+
+            link = ET.SubElement(channel, 'link')
+            link.text = request.host_url
+
+            description = ET.SubElement(channel, 'description')
+            description.text = '关于 Nintendo 起诉美国政府要求退还关税款项的新闻资讯'
+
+            language = ET.SubElement(channel, 'language')
+            language.text = 'zh-cn'
+
+            # 添加新闻项
+            for news in news_list:
+                item = ET.SubElement(channel, 'item')
+
+                item_title = ET.SubElement(item, 'title')
+                item_title.text = news.get('title', '')
+
+                item_link = ET.SubElement(item, 'link')
+                item_link.text = request.host_url + f'/article/{news.get("id")}'
+
+                item_desc = ET.SubElement(item, 'description')
+                item_desc.text = news.get('summary', '')
+
+                item_date = ET.SubElement(item, 'pubDate')
+                item_date.text = news.get('date', '')
+
+                item_source = ET.SubElement(item, 'source')
+                item_source.text = news.get('source', '')
+
+            # 生成 XML 字符串
+            xml_str = ET.tostring(rss, encoding='unicode')
+
+            return Response(
+                xml_str,
+                mimetype='application/rss+xml',
+                headers={'Content-Type': 'application/rss+xml; charset=utf-8'}
+            )
+        except Exception as e:
+            logger.error(f"RSS生成错误: {str(e)}")
+            flash(f'生成RSS订阅源时出错', 'error')
+            return redirect(url_for('index'))
+
+    @app.route('/feed.xml')
+    def rss_feed_xml():
+        """RSS 2.0 订阅源 (XML 扩展名)"""
+        return rss_feed()
 
     @app.errorhandler(404)
     def not_found(error):
