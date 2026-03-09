@@ -77,7 +77,9 @@ class NewsScraper:
 任天堂表示，公司已经支付了数千万美元的关税，现在寻求退还这些款项以及利息。
 
 此案可能会对其他面临类似关税争议的公司产生重大影响。''',
-                'image_url': None
+                'image_url': None,
+                'category': '法律诉讼',
+                'tags': ['诉讼', '关税', '国际贸易']
             },
             {
                 'id': 2,
@@ -93,7 +95,9 @@ class NewsScraper:
 任天堂声称，这些关税违反了美国在世贸组织规则下的义务。
 
 这是继谷歌、苹果等公司之后，又一家对美国关税政策采取法律行动的大型科技公司。''',
-                'image_url': None
+                'image_url': None,
+                'category': '行业动态',
+                'tags': ['科技行业', '关税政策', '国际贸易']
             },
             {
                 'id': 3,
@@ -109,7 +113,9 @@ class NewsScraper:
 如果任天堂胜诉，可能会为其他公司树立先例，要求退还类似关税。
 
 然而，政府可能会采取上诉策略，使案件延长更长时间。''',
-                'image_url': None
+                'image_url': None,
+                'category': '分析评论',
+                'tags': ['法律分析', '行业影响', '预测']
             },
             {
                 'id': 4,
@@ -125,7 +131,9 @@ class NewsScraper:
 海关发言人称，所有关税都是根据产品分类和适用税率依法征收的。
 
 该案预计将在未来几个月内进入证据开示阶段。''',
-                'image_url': None
+                'image_url': None,
+                'category': '政府动态',
+                'tags': ['美国海关', '政府回应', '国际贸易']
             },
             {
                 'id': 5,
@@ -141,7 +149,9 @@ class NewsScraper:
 许多游戏公司已经表示，它们正在密切关注此案的进展。
 
 任天堂表示，该公司将继续为其客户提供具有竞争力的价格。''',
-                'image_url': None
+                'image_url': None,
+                'category': '行业动态',
+                'tags': ['游戏行业', '价格影响', '市场分析']
             }
         ]
 
@@ -229,3 +239,38 @@ class NewsScraper:
                 'count': 0,
                 'message': f'刷新失败: {str(e)}'
             }
+
+    def get_categories(self) -> List[str]:
+        """
+        获取所有新闻分类
+
+        Returns:
+            分类列表
+        """
+        try:
+            all_news = self.search_news()
+            categories = set()
+            for news in all_news:
+                if news.get('category'):
+                    categories.add(news['category'])
+            return sorted(list(categories))
+        except Exception as e:
+            logger.error(f"获取分类时出错: {str(e)}")
+            return []
+
+    def filter_by_category(self, category: str) -> List[Dict]:
+        """
+        按分类筛选新闻
+
+        Args:
+            category: 新闻分类
+
+        Returns:
+            筛选后的新闻列表
+        """
+        try:
+            all_news = self.search_news()
+            return [news for news in all_news if news.get('category', '').lower() == category.lower()]
+        except Exception as e:
+            logger.error(f"筛选新闻时出错: {str(e)}")
+            return []
