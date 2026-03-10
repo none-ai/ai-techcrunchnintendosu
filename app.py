@@ -6,13 +6,14 @@ Flask Web Application Main File
 News aggregation app about Nintendo suing US government for tariff refund
 """
 
-from flask import Flask, render_template, request, redirect, url_for, flash, Response
+from flask import Flask, render_template, request, redirect, url_for, flash, Response, g
 from config import get_config
 from scraper import NewsScraper
 from utils import format_date, truncate_text, calculate_reading_time, format_error_message
 from api import api_bp
 from datetime import datetime
 import logging
+import uuid
 import xml.etree.ElementTree as ET
 
 # 配置日志
@@ -32,6 +33,23 @@ def create_app(config_class=None):
         Flask应用实例
     """
     app = Flask(__name__)
+
+    # Request ID middleware
+    @app.before_request
+    def before_request():
+        g.request_id = str(uuid.uuid4())[:8]
+        logger.info(f"[{g.request_id}] {request.method} {request.path}")
+
+    @app.after_request
+    def after_request(response):
+        logger.info(f"[{g.request_id}] Status: {response.status_code}")
+        response.headers['X-Request-ID'] = g.request_id
+        return response
+
+    # Health check endpoint
+    @app.route('/health')
+    def health_check():
+        return {'status': 'healthy', 'request_id': g.request_id}, 200
 
     # 注册 API Blueprint
     app.register_blueprint(api_bp)
