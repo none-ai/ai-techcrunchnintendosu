@@ -12,6 +12,8 @@
 ├── config.py             # 配置文件
 ├── requirements.txt     # Python 依赖
 ├── README.md            # 说明文档
+├── api/                 # API 模块
+│   └── __init__.py     # API 端点定义
 ├── scraper/             # 爬虫模块
 │   ├── __init__.py
 │   └── news_scraper.py  # 新闻爬虫

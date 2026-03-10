@@ -187,3 +187,33 @@ def health_check():
         'status': 'healthy',
         'version': '1.0.0'
     })
+
+
+@api_bp.route('/stats')
+def get_stats():
+    """
+    获取新闻统计信息
+    """
+    try:
+        scraper = get_scraper()
+        all_news = scraper.search_news()
+        
+        sources = list(set([news['source'] for news in all_news]))
+        categories = scraper.get_categories()
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'total_news': len(all_news),
+                'total_sources': len(sources),
+                'total_categories': len(categories),
+                'sources': sources,
+                'categories': categories
+            }
+        })
+    except Exception as e:
+        logger.error(f"API获取统计信息错误: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
